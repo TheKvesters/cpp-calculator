@@ -12,105 +12,103 @@ bool ReadNumber(Number& result){
 
 bool ReadCommand(std::string& command){
 
-    std::cin >> command;
+    if(!(std::cin >> command)){
+        return false;
+    }
 
     if(command == "**"){ //Если это комманда **, то сразу переделываем под удобную для моего кода комманду.
         command = "^";
         return true;
-    } else if(command.size() > 1){
+    } 
+    
+    if(command.size() > 1){
         return false;
     }
 
     return true;
 }
 
-bool CommandInitialization(Number& first_num, Number& second_num, Number& buffer, std::string& command, bool& buffer_checker){
+bool CommandInitialization(Number& first_number, Number& second_number, Number& buffer, std::string& command, bool& buffer_checker){
     char symbol_of_command = command[0];
+    std::string simple_arifmetic = "+-/*^:";
+
+    if(simple_arifmetic.find(symbol_of_command) != simple_arifmetic.npos){
+        if(!ReadNumber(second_number)){
+            throw "Error: Numeric operand expected";
+        }
+    }
 
     switch(symbol_of_command){
+
         case '+':
-        if(!ReadNumber(second_num)){
-            std::cerr << "Error: Numeric operand expected";
-            return false;
-        }
-        first_num += second_num;
-        second_num = 0;
+        
+        first_number += second_number;
+        second_number = 0;
         break;
 
         case '-':
-        if(!ReadNumber(second_num)){
-            std::cerr << "Error: Numeric operand expected";
-            return false;
-        }
-        first_num -= second_num;
-        second_num = 0;
+
+        first_number -= second_number;
+        second_number = 0;
         break;
 
         case '/':
-        if(!ReadNumber(second_num)){
-            std::cerr << "Error: Numeric operand expected";
-            return false;
-        }
-        first_num /= second_num;
-        second_num = 0;
+
+        first_number /= second_number;
+        second_number = 0;
         break;
 
         case '*':
-        if(!ReadNumber(second_num)){
-            std::cerr << "Error: Numeric operand expected";
-            return false;
-        }
-        first_num *= second_num;
-        second_num = 0;
+
+        first_number *= second_number;
+        second_number = 0;
         break;
 
         case '^': //Он же **
-        if(!ReadNumber(second_num)){
-            std::cerr << "Error: Numeric operand expected";
-            return false;
-        }
-        first_num = std::pow(first_num, second_num);
-        second_num = 0;
+
+        first_number = std::pow(first_number, second_number);
+        second_number = 0;
         break;
 
         case ':':
-        if(!ReadNumber(second_num)){
-            std::cerr << "Error: Numeric operand expected";
-            return false;
-        }
-        first_num = second_num;
+
+        first_number = second_number;
         break;
 
         case '=':
-        std::cout << first_num << std::endl;
+
+        std::cout << first_number << std::endl;
         break;
 
         case 'q':
-        return false;       
+
+        return true;
 
         case 's':
-        buffer = first_num;
+
+        buffer = first_number;
         buffer_checker = true;
         break;
 
         case 'l':
+
         if(!buffer_checker){
-            std::cerr << "Error: Memory is empty" << std::endl;
-            return false;
+            throw "Error: Memory is empty";
         }
-        first_num = buffer;
+        first_number = buffer;
         break;
 
         case 'c':
-        first_num = 0;
+
+        first_number = 0;
         break;
         
         default:
-        std::cerr << "Error: Unknown token " << symbol_of_command <<std::endl;
-        break;
+
+        throw "Error: Unknown token " + symbol_of_command;
     }
 
-    return true;
+    return false; //Продолжаем цикл.
 }
 
 
@@ -119,22 +117,21 @@ bool RunCalculatorCycle(){
     bool buffer_checker = false;
     std::string command;
 
-    Number first_num(0), second_num(0);
+    Number first_number(0);
+    Number second_number(0);
 
-    if(!ReadNumber(first_num)){
-        std::cerr << "Error: Numeric operand expected" << std::endl;
-        return false;
+    if(!ReadNumber(first_number)){
+        throw "Error: Numeric operand expected";
     }
 
     while(true){
 
         if(!ReadCommand(command)){
-            std::cerr << "Error: Unknown token " << command << std::endl;
-            return false;
+            throw "Error: Unknown token " + command;
         }
 
-        if(!CommandInitialization(first_num, second_num, buffer, command, buffer_checker)){
-            return false;
+        if(CommandInitialization(first_number, second_number, buffer, command, buffer_checker)){
+            return true;
         }
 
     }
