@@ -1,118 +1,119 @@
 #include "calculator.h"
 
+bool ReadNumber(Number &result)
+{
 
-bool ReadNumber(Number& result){
-
-    if(!(std::cin >> result)){
+    if (!(std::cin >> result))
+    {
         return false;
     }
 
     return true;
 }
 
-bool ReadCommand(std::string& command){
+bool ReadCommand(std::string &command)
+{
 
-    if(!(std::cin >> command)){
+    if (!(std::cin >> command))
+    {
         return false;
     }
 
-    if(command == "**"){ //Если это комманда **, то сразу переделываем под удобную для моего кода комманду.
+    // Если это комманда **, то сразу переделываем под удобную для моего кода комманду.
+    if (command == "**")
+    {
         command = "^";
         return true;
-    } 
-    
-    if(command.size() > 1){
+    }
+
+    if (command.size() > 1)
+    {
         return false;
     }
 
     return true;
 }
 
-bool CommandInitialization(Number& first_number, Number& second_number, Number& buffer, std::string& command, bool& buffer_checker){
+bool CommandInitialization(Number &first_number, Number &second_number, Number &buffer, std::string &command, bool &buffer_checker)
+{
     char symbol_of_command = command[0];
-    std::string simple_arifmetic = "+-/*^:";
+    static const std::string simple_arithmetic = "+-/*^:";
 
-    if(simple_arifmetic.find(symbol_of_command) != simple_arifmetic.npos){
-        if(!ReadNumber(second_number)){
-            throw "Error: Numeric operand expected";
+    if (simple_arithmetic.find(symbol_of_command) != simple_arithmetic.npos)
+    {
+        if (!ReadNumber(second_number))
+        {
+            throw std::runtime_error("Error: Numeric operand expected");
         }
     }
 
-    switch(symbol_of_command){
+    switch (symbol_of_command)
+    {
 
-        case '+':
-        
+    case '+':
         first_number += second_number;
         second_number = 0;
         break;
 
-        case '-':
-
+    case '-':
         first_number -= second_number;
         second_number = 0;
         break;
 
-        case '/':
-
+    case '/':
         first_number /= second_number;
         second_number = 0;
         break;
 
-        case '*':
-
+    case '*':
         first_number *= second_number;
         second_number = 0;
         break;
 
-        case '^': //Он же **
-
+    // Он же **
+    case '^':
         first_number = std::pow(first_number, second_number);
         second_number = 0;
         break;
 
-        case ':':
-
+    case ':':
         first_number = second_number;
         break;
 
-        case '=':
-
+    case '=':
         std::cout << first_number << std::endl;
         break;
 
-        case 'q':
-
+    case 'q':
         return true;
 
-        case 's':
-
+    case 's':
         buffer = first_number;
         buffer_checker = true;
         break;
 
-        case 'l':
-
-        if(!buffer_checker){
-            throw "Error: Memory is empty";
+    case 'l':
+        if (!buffer_checker)
+        {
+            throw std::runtime_error("Error: Memory is empty");
         }
         first_number = buffer;
         break;
 
-        case 'c':
-
+    case 'c':
         first_number = 0;
         break;
-        
-        default:
 
-        throw "Error: Unknown token " + symbol_of_command;
+    default:
+        throw std::runtime_error(std::string("Error: Unknown token ") + symbol_of_command);
     }
 
-    return false; //Продолжаем цикл.
+    // Продолжаем цикл.
+    return false;
 }
 
-
-bool RunCalculatorCycle(){
+bool RunCalculatorCycle()
+{
     Number buffer(0);
     bool buffer_checker = false;
     std::string command;
@@ -120,20 +121,23 @@ bool RunCalculatorCycle(){
     Number first_number(0);
     Number second_number(0);
 
-    if(!ReadNumber(first_number)){
-        throw "Error: Numeric operand expected";
+    if (!ReadNumber(first_number))
+    {
+        throw std::runtime_error("Error: Numeric operand expected");
     }
 
-    while(true){
+    while (true)
+    {
 
-        if(!ReadCommand(command)){
-            throw "Error: Unknown token " + command;
+        if (!ReadCommand(command))
+        {
+            throw std::runtime_error(std::string("Error: Unknown token ") + command);
         }
 
-        if(CommandInitialization(first_number, second_number, buffer, command, buffer_checker)){
+        if (CommandInitialization(first_number, second_number, buffer, command, buffer_checker))
+        {
             return true;
         }
-
     }
 
     return true;
